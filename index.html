@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kim To'laydi? — Restoran Cheki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1b1d22;
+    --paper: #fbfaf5;
+    --ink: #1f1f1f;
+    --dim: #8a8577;
+    --red: #b3372c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 60px;
+    font-family: 'Manrope', sans-serif;
+    color: #eee;
+  }
+
+  .input-card {
+    width: 100%;
+    max-width: 360px;
+    background: #24262e;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+
+  .add-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: #1b1d22;
+    border: 1px solid #383b45;
+    border-radius: 6px;
+    color: #eee;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.88rem;
+    padding: 10px 12px;
+  }
+  input[type="text"]:focus { outline: none; border-color: var(--red); }
+  input[type="text"]::placeholder { color: #6a6d78; }
+
+  .add-btn {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .add-btn:hover { filter: brightness(1.1); }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 30px;
+    margin-bottom: 14px;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #31343d;
+    border-radius: 14px;
+    padding: 5px 6px 5px 12px;
+    font-size: 0.8rem;
+  }
+
+  .chip .remove {
+    background: none;
+    border: none;
+    color: #8a8d99;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 4px;
+  }
+  .chip .remove:hover { color: #fff; }
+
+  .empty-hint { color: #6a6d78; font-size: 0.78rem; }
+
+  button#print-btn {
+    width: 100%;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+  button#print-btn:hover { filter: brightness(1.1); }
+  button#print-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .receipt-wrap {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .receipt {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    padding: 20px 18px 10px;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.45);
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% 96%,
+      94% 100%, 88% 96%, 82% 100%, 76% 96%, 70% 100%, 64% 96%,
+      58% 100%, 52% 96%, 46% 100%, 40% 96%, 34% 100%, 28% 96%,
+      22% 100%, 16% 96%, 10% 100%, 4% 96%, 0% 100%
+    );
+    padding-bottom: 26px;
+  }
+
+  .receipt-header {
+    text-align: center;
+    border-bottom: 1px dashed #bdb8a4;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  .receipt-header .shop { font-weight: 700; font-size: 0.85rem; }
+  .receipt-header .sub { font-size: 0.65rem; color: var(--dim); margin-top: 2px; }
+
+  .receipt-line { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .receipt-line .dim { color: var(--dim); font-size: 0.68rem; }
+
+  .receipt-total {
+    border-top: 1px dashed #bdb8a4;
+    margin-top: 8px;
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+  }
+
+  .winner-block {
+    margin-top: 14px;
+    text-align: center;
+    position: relative;
+  }
+
+  .winner-label {
+    font-size: 0.62rem;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .winner-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 4px 0 8px;
+  }
+
+  .stamp {
+    display: inline-block;
+    border: 2px solid var(--red);
+    color: var(--red);
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 5px 14px;
+    border-radius: 4px;
+    transform: rotate(-6deg);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .stamp.show { opacity: 0.9; transform: rotate(-6deg) scale(1); }
+
+  .receipt-footer {
+    text-align: center;
+    font-size: 0.62rem;
+    color: var(--dim);
+    margin-top: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="input-card">
+  <div class="add-row">
+    <input type="text" id="name-input" placeholder="Ism kiriting...">
+    <button class="add-btn" id="add-btn">Qo'shish</button>
+  </div>
+  <div class="chips" id="chips">
+    <span class="empty-hint">Kamida 2 kishi qo'shing.</span>
+  </div>
+  <button id="print-btn" disabled>Chek chiqarish</button>
+</div>
+
+<div class="receipt-wrap">
+  <div class="receipt" id="receipt">
+    <div class="receipt-header">
+      <div class="shop">★ DO'STLAR OSHXONASI ★</div>
+      <div class="sub">Hisob-kitob cheki</div>
+    </div>
+    <div id="receipt-lines"></div>
+  </div>
+</div>
+
+<script>
+  const menuItems = ["Osh", "Lag'mon", "Norin", "Manti", "Shashlik", "Salat", "Non", "Choy", "Kompot", "Shirinlik", "Somsa", "Sho'rva"];
+
+  const nameInput = document.getElementById('name-input');
+  const addBtn = document.getElementById('add-btn');
+  const chipsEl = document.getElementById('chips');
+  const printBtn = document.getElementById('print-btn');
+  const receiptLines = document.getElementById('receipt-lines');
+
+  let names = [];
+
+  function renderChips() {
+    chipsEl.innerHTML = '';
+    if (names.length === 0) {
+      chipsEl.innerHTML = '<span class="empty-hint">Kamida 2 kishi qo\'shing.</span>';
+      return;
+    }
+    names.forEach((name, i) => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = `<span>${name}</span>`;
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove';
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', () => {
+        names.splice(i, 1);
+        renderChips();
+        updatePrintBtn();
+      });
+      chip.appendChild(removeBtn);
+      chipsEl.appendChild(chip);
+    });
+  }
+
+  function updatePrintBtn() {
+    printBtn.disabled = names.length < 2;
+  }
+
+  function addName() {
+    const val = nameInput.value.trim();
+    if (!val) return;
+    names.push(val);
+    nameInput.value = '';
+    renderChips();
+    updatePrintBtn();
+    nameInput.focus();
+  }
+
+  addBtn.addEventListener('click', addName);
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addName(); });
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function printReceipt() {
+    printBtn.disabled = true;
+    receiptLines.innerHTML = '';
+
+    let total = 0;
+    for (const name of names) {
+      const item = menuItems[Math.floor(Math.random() * menuItems.length)];
+      const price = (Math.floor(Math.random() * 25) + 15) * 1000;
+      total += price;
+
+      const line = document.createElement('div');
+      line.className = 'receipt-line';
+      line.innerHTML = `<span>${name} — ${item}</span><span>${price.toLocaleString('ru-RU')}</span>`;
+      receiptLines.appendChild(line);
+      await sleep(180);
+    }
+
+    const totalLine = document.createElement('div');
+    totalLine.className = 'receipt-total';
+    totalLine.innerHTML = `<span>JAMI</span><span>${total.toLocaleString('ru-RU')} so'm</span>`;
+    receiptLines.appendChild(totalLine);
+
+    await sleep(250);
+
+    const winner = names[Math.floor(Math.random() * names.length)];
+    const winnerBlock = document.createElement('div');
+    winnerBlock.className = 'winner-block';
+    winnerBlock.innerHTML = `
+      <div class="winner-label">Tasodifiy tanlov natijasi</div>
+      <div class="winner-name">${winner}</div>
+      <div class="stamp" id="stamp">TO'LAYDI</div>
+      <div class="receipt-footer">Rahmat! Yana tashrif buyuring.</div>
+    `;
+    receiptLines.appendChild(winnerBlock);
+
+    await sleep(100);
+    document.getElementById('stamp').classList.add('show');
+
+    printBtn.disabled = false;
+  }
+
+  printBtn.addEventListener('click', printReceipt);
+</script>
+
+</body>
+</html>
